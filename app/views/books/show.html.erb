@@ -9,7 +9,7 @@
         <tr>
           <td>
             <%= link_to(user_path(@user.id)) do %>
-              <%= image_tag @user.get_profile_image(100,100) %> <br>
+              <%= image_tag @user.get_profile_image(70, 70) %> <br>
               <%= @user.name %>
             <% end %>
           </td>
@@ -20,6 +20,22 @@
           </td>
           <td>
             <%= @current_book.body %>
+          </td>
+          <td>
+            <% if @current_book.favorited_by?(current_user) %>
+              <%= link_to book_favorites_path(@current_book), method: :delete do %>
+                <i class="fas fa-heart heart_red"></i>
+                <%= @current_book.favorites.count %>
+              <% end %>
+            <% else %>
+              <%= link_to book_favorites_path(@current_book), method: :post do %>
+                <i class="fas fa-heart heart_blue"></i>
+                <%= @current_book.favorites.count %>
+              <% end %>
+            <% end %>
+          </td>
+          <td>
+            コメント数:<%= @current_book.book_comments.count %>
           </td>
           <% if @current_book.user == current_user %>
             <td>
@@ -33,6 +49,27 @@
           <% end %>
         </tr>
       </table>
+      
+      <div>
+        <% @current_book.book_comments.each do |book_comment| %>
+          <%= image_tag book_comment.user.get_profile_image(70, 70) %>
+          <%= book_comment.comment %>
+          <% if book_comment.user == current_user %>
+            <%= link_to "Destroy", book_book_comment_path(book_comment.book, book_comment), method: :delete, class:"btn btn-sm btn-danger destroy_book_comment_#{@current_book.id}" %>
+          <% end %>
+          <br>
+          <%= link_to user_path(book_comment.user) do %>
+            <%= book_comment.user.name %><br>
+          <% end %>
+        <% end %>
+      </div>
+      
+      <div>
+      <%= form_with model: [@current_book, @book_comment] do |f| %>
+        <%= f.text_area :comment, rows: '5', style: "width:100%", placeholder: "コメントをここに" %>
+        <%= f.submit "送信する" %>
+      <% end %>
+      </div>
     </div>
 </div>
 
